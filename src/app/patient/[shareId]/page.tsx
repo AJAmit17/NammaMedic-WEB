@@ -12,63 +12,19 @@ import {
     MapPin, Pill, AlertTriangle
 } from 'lucide-react';
 
-type PatientData = {
-    personal: {
-        firstName: string;
-        lastName: string;
-        dateOfBirth: string;
-        gender: string;
-        phone: string;
-        email?: string;
-        address: {
-            street: string;
-            city: string;
-            state: string;
-            zipCode: string;
-            country: string;
-        };
-    };
-    medical: {
-        patientId: string;
-        bloodType: string;
-        allergies: string[];
-        medications: {
-            name: string;
-            dosage: string;
-            frequency: string;
-        }[];
-        conditions: string[];
-        lastVisit: string;
-        notes?: string;
-    };
-    emergency: {
-        primaryContact: {
-            name: string;
-            relationship: string;
-            phone: string;
-        };
-        secondaryContact?: {
-            name: string;
-            relationship: string;
-            phone: string;
-        };
-    };
-};
-
 export default function PatientDataPage() {
     const { shareId } = useParams() as { shareId: string };
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<PatientData | null>(null);
+    const [data, setData] = useState<any>(null);
     const [expiresAt, setExpiresAt] = useState<Date | null>(null);
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchPatientData = async () => {
             try {
-                // const res = await fetch(`/api/patient/${shareId}`);
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patient/${shareId}`);
+                const res = await fetch(`https://namma-medic.vercel.app/api/patient/${shareId}`);
                 const json = await res.json();
 
                 if (!json.success) {
@@ -220,7 +176,10 @@ export default function PatientDataPage() {
                                 <div>
                                     <label className="text-sm text-gray-500">Allergies</label>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        {medical.allergies.map((a, i) => <Badge key={i} variant="destructive" className="text-xs">{a}</Badge>)}
+                                        {
+                                            //@ts-ignore
+                                            medical.allergies.map((a, i) => <Badge key={i} variant="destructive" className="text-xs">{a}</Badge>)
+                                        }
                                     </div>
                                 </div>
                             )}
@@ -228,7 +187,10 @@ export default function PatientDataPage() {
                                 <div>
                                     <label className="text-sm text-gray-500">Conditions</label>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        {medical.conditions.map((c, i) => <Badge key={i} variant="secondary" className="text-xs">{c}</Badge>)}
+                                        {
+                                            //@ts-ignore
+                                            medical.conditions.map((c, i) => <Badge key={i} variant="secondary" className="text-xs">{c}</Badge>)
+                                        }
                                     </div>
                                 </div>
                             )}
@@ -251,13 +213,16 @@ export default function PatientDataPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {medical.medications.map((med, i) => (
-                                <div key={i} className="bg-purple-50 p-3 rounded-lg">
-                                    <h4 className="font-semibold text-purple-800">{med.name}</h4>
-                                    <p className="text-sm text-gray-600">Dosage: {med.dosage}</p>
-                                    <p className="text-sm text-gray-600">Frequency: {med.frequency}</p>
-                                </div>
-                            ))}
+                            {
+                                //@ts-ignore
+                                medical.medications.map((med, i) => (
+                                    <div key={i} className="bg-purple-50 p-3 rounded-lg">
+                                        <h4 className="font-semibold text-purple-800">{med.name}</h4>
+                                        <p className="text-sm text-gray-600">Dosage: {med.dosage}</p>
+                                        <p className="text-sm text-gray-600">Frequency: {med.frequency}</p>
+                                    </div>
+                                ))
+                            }
                         </CardContent>
                     </Card>
                 )}
