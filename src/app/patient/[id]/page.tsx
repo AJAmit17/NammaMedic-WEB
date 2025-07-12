@@ -68,7 +68,7 @@ export default function PatientDataPage() {
         const fetchPatientData = async () => {
             try {
                 // const res = await fetch(`/api/patient/${shareId}`);
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patient/testing123123`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patient/${shareId}`);
                 const json = await res.json();
 
                 if (!json.success) {
