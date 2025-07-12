@@ -222,44 +222,6 @@ export default function Home() {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Environment Setup */}
-                <Card className="mt-8">
-                    <CardHeader>
-                        <CardTitle>Environment Setup</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div>
-                                <Label className="text-sm font-medium">Required Environment Variables</Label>
-                                <Textarea
-                                    readOnly
-                                    className="mt-2 text-xs font-mono"
-                                    value={`DATABASE_URL="mongodb://localhost:27017/medical-data-sharing"
-WEBHOOK_SECRET="your-webhook-secret-key-here"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"`}
-                                />
-                            </div>
-
-                            <div>
-                                <Label className="text-sm font-medium">Setup Commands</Label>
-                                <Textarea
-                                    readOnly
-                                    className="mt-2 text-xs font-mono"
-                                    value={`# Install dependencies
-npm install
-
-# Set up Prisma
-npx prisma generate
-npx prisma db push
-
-# Run development server
-npm run dev`}
-                                />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </div>
     );
