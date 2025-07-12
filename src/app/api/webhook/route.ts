@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { WebhookPayloadSchema, ApiResponse } from '@/lib/types';
+import { ApiResponse } from '@/lib/types';
 import { verifyWebhookSignature } from '@/lib/security';
 import { checkRateLimit } from '@/lib/rate-limit';
 
@@ -24,32 +24,25 @@ export async function POST(request: NextRequest) {
         try {
             payload = JSON.parse(rawBody);
         } catch (error) {
-            await logWebhookAttempt('unknown', payload, false, 'Invalid JSON');
+            await logWebhookAttempt('unknown', rawBody, false, 'Invalid JSON');
             return NextResponse.json(
                 { success: false, error: 'Invalid JSON format', code: 'INVALID_JSON' } as ApiResponse,
                 { status: 400 }
             );
         }
 
-        // Validate payload structure
-        const validationResult = WebhookPayloadSchema.safeParse(payload);
-        if (!validationResult.success) {
-            await logWebhookAttempt(payload.source || 'unknown', payload, false, 'Validation failed');
+        const { shareId, source, signature, data } = payload;
+
+        if (!shareId || !source || !signature || !data) {
+            await logWebhookAttempt(source || 'unknown', payload, false, 'Missing required fields');
             return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Invalid payload structure',
-                    code: 'VALIDATION_ERROR',
-                    details: validationResult.error.issues
-                } as ApiResponse,
+                { success: false, error: 'Missing required fields', code: 'MISSING_FIELDS' } as ApiResponse,
                 { status: 400 }
             );
         }
 
-        const { shareId, source, signature, data } = validationResult.data;
-
-        // Verify webhook signature - exclude signature field from verification
-        const { signature: _, ...payloadWithoutSignature } = validationResult.data;
+        // Verify webhook signature
+        const { signature: _, ...payloadWithoutSignature } = payload;
         const payloadForVerification = JSON.stringify(payloadWithoutSignature);
         const isValidSignature = verifyWebhookSignature(payloadForVerification, signature);
 
@@ -83,12 +76,12 @@ export async function POST(request: NextRequest) {
         const patientRecord = await prisma.patientData.create({
             data: {
                 shareId,
-                data: data as any,
-                expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes from now
+                data: data,
+                expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
             }
         });
 
-        // Log successful webhook
+        // Log success
         await logWebhookAttempt(source, payload, true);
 
         return NextResponse.json(
@@ -105,7 +98,6 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         console.error('Webhook processing error:', error);
-
         return NextResponse.json(
             { success: false, error: 'Internal server error', code: 'INTERNAL_ERROR' } as ApiResponse,
             { status: 500 }
@@ -118,7 +110,7 @@ async function logWebhookAttempt(source: string, payload: any, success: boolean,
         await prisma.webhookLog.create({
             data: {
                 source,
-                payload: payload as any,
+                payload,
                 success,
                 error,
             }
