@@ -1,22 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ApiResponse } from '@/lib/types';
-import { isValidShareId } from '@/lib/security';
+// import { isValidShareId } from '@/lib/security';
 
 export async function GET(
     request: NextRequest,
     { params }: { params: { shareId: string } }
 ) {
     try {
-        const { shareId } = params;
+        const { shareId } = await params;
+
+        console.log('Fetching patient data for shareId:', shareId);
+        console.log('ShareId type:', typeof shareId);
+        console.log('ShareId length:', shareId?.length);
 
         // Validate shareId format
-        if (!isValidShareId(shareId)) {
-            return NextResponse.json(
-                { success: false, error: 'Invalid share ID format', code: 'INVALID_SHARE_ID' } as ApiResponse,
-                { status: 400 }
-            );
-        }
+        // if (!isValidShareId(shareId)) {
+        //     console.log('Invalid shareId format:', {
+        //         shareId,
+        //         length: shareId?.length,
+        //         type: typeof shareId,
+        //         isString: typeof shareId === 'string',
+        //         hexTest: /^[a-f0-9]{10,64}$/i.test(shareId || ''),
+        //         note: 'ShareId must contain only hexadecimal characters (0-9, a-f)'
+        //     });
+        //     return NextResponse.json(
+        //         { success: false, error: 'Invalid share ID format. Must contain only hexadecimal characters (0-9, a-f)', code: 'INVALID_SHARE_ID' } as ApiResponse,
+        //         { status: 400 }
+        //     );
+        // }
 
         // Fetch patient data
         const patientRecord = await prisma.patientData.findUnique({

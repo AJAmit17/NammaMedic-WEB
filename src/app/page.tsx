@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { generateWebhookSignature } from '@/lib/security';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,52 +19,71 @@ export default function Home() {
     const testWebhook = async () => {
         setIsLoading(true);
         try {
-            const testData = {
-                shareId: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-                source: 'demo-system',
-                signature: 'demo-signature-for-testing',
-                data: {
-                    personal: {
-                        firstName: 'John',
-                        lastName: 'Doe',
-                        dateOfBirth: '1985-03-15',
-                        gender: 'male' as const,
-                        phone: '+1-555-0123',
-                        email: 'john.doe@example.com',
-                        address: {
-                            street: '123 Main St',
-                            city: 'Anytown',
-                            state: 'NY',
-                            zipCode: '12345',
-                            country: 'USA'
-                        }
+            const testPayload = {
+                personal: {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    dateOfBirth: '1985-03-15',
+                    gender: 'male' as const,
+                    phone: '+1-555-0123',
+                    email: 'john.doe@example.com',
+                    address: {
+                        street: '123 Main St',
+                        city: 'Anytown',
+                        state: 'NY',
+                        zipCode: '12345',
+                        country: 'USA'
+                    }
+                },
+                medical: {
+                    patientId: 'PAT-001234',
+                    bloodType: 'O+' as const,
+                    allergies: ['Penicillin', 'Nuts'],
+                    medications: [
+                        { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' },
+                        { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' }
+                    ],
+                    conditions: ['Hypertension', 'Type 2 Diabetes'],
+                    lastVisit: '2024-01-15',
+                    notes: 'Patient reports feeling well. Blood pressure stable.'
+                },
+                emergency: {
+                    primaryContact: {
+                        name: 'Jane Doe',
+                        relationship: 'Spouse',
+                        phone: '+1-555-0124'
                     },
-                    medical: {
-                        patientId: 'PAT-001234',
-                        bloodType: 'O+' as const,
-                        allergies: ['Penicillin', 'Nuts'],
-                        medications: [
-                            { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' },
-                            { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' }
-                        ],
-                        conditions: ['Hypertension', 'Type 2 Diabetes'],
-                        lastVisit: '2024-01-15',
-                        notes: 'Patient reports feeling well. Blood pressure stable.'
-                    },
-                    emergency: {
-                        primaryContact: {
-                            name: 'Jane Doe',
-                            relationship: 'Spouse',
-                            phone: '+1-555-0124'
-                        },
-                        secondaryContact: {
-                            name: 'Bob Smith',
-                            relationship: 'Brother',
-                            phone: '+1-555-0125'
-                        }
+                    secondaryContact: {
+                        name: 'Bob Smith',
+                        relationship: 'Brother',
+                        phone: '+1-555-0125'
                     }
                 }
             };
+
+            // Generate shareId and create payload
+            const shareId = "testing123123";
+
+            const testData = {
+                shareId,
+                source: 'demo-system',
+                signature: 'placeholder', // Temporary placeholder
+                data: testPayload
+            };
+
+            // Create the final payload without signature first
+            const { signature, ...payloadWithoutSignature } = testData;
+            const payloadForSigning = JSON.stringify(payloadWithoutSignature);
+
+            // Generate signature for payload without signature field
+            const generatedSignature = await fetch('/api/generate-signature', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ payload: payloadForSigning })
+            }).then(res => res.json()).then(data => data.signature);
+
+            // Add signature to the payload
+            testData.signature = generatedSignature;
 
             const response = await fetch('/api/webhook', {
                 method: 'POST',

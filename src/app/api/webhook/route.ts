@@ -48,8 +48,17 @@ export async function POST(request: NextRequest) {
 
         const { shareId, source, signature, data } = validationResult.data;
 
-        // Verify webhook signature
-        if (!verifyWebhookSignature(rawBody, signature)) {
+        // Verify webhook signature - exclude signature field from verification
+        const { signature: _, ...payloadWithoutSignature } = validationResult.data;
+        const payloadForVerification = JSON.stringify(payloadWithoutSignature);
+        const isValidSignature = verifyWebhookSignature(payloadForVerification, signature);
+
+        if (!isValidSignature) {
+            console.log('Signature verification failed:', {
+                receivedSignature: signature,
+                payloadLength: payloadForVerification.length,
+                source
+            });
             await logWebhookAttempt(source, payload, false, 'Invalid signature');
             return NextResponse.json(
                 { success: false, error: 'Invalid signature', code: 'INVALID_SIGNATURE' } as ApiResponse,
