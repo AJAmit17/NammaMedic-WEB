@@ -1,47 +1,34 @@
 import { z } from 'zod';
 
-// Patient data validation schema
 export const PatientDataSchema = z.object({
-    personal: z.object({
-        firstName: z.string().min(1).max(100),
-        lastName: z.string().min(1).max(100),
-        dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        gender: z.string().min(1),
-        phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/),
-        email: z.string().email().optional(),
-        address: z.object({
-            street: z.string(),
-            city: z.string(),
-            state: z.string(),
-            zipCode: z.string(),
-            country: z.string(),
-        }),
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    age: z.number().nonnegative().max(120),
+    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+        message: 'Invalid date format, expected YYYY-MM-DD',
     }),
-    medical: z.object({
-        patientId: z.string(),
-        bloodType: z.string().min(1),
-        allergies: z.array(z.string()).default([]),
-        medications: z.array(z.object({
-            name: z.string(),
-            dosage: z.string(),
-            frequency: z.string(),
-        })).default([]),
-        conditions: z.array(z.string()).default([]),
-        lastVisit: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        notes: z.string().optional(),
+    gender: z.string().min(1),
+    height: z.number().nonnegative(),
+    weight: z.number().nonnegative(),
+    bloodType: z.string().min(1),
+    allergies: z.array(z.string()).default([]),
+    medicalConditions: z.array(z.string()).default([]),
+
+    emergencyContact: z.object({
+        name: z.string().min(1),
+        phone: z.string().min(1),
+        relationship: z.string().min(1),
     }),
-    emergency: z.object({
-        primaryContact: z.object({
-            name: z.string(),
-            relationship: z.string(),
-            phone: z.string(),
-        }),
-        secondaryContact: z.object({
-            name: z.string(),
-            relationship: z.string(),
-            phone: z.string(),
-        }).optional(),
+
+    doctor: z.object({
+        name: z.string(),
+        phone: z.string(),
+        specialty: z.string(),
     }),
+
+    weeklySteps: z.array(z.any()).default([]),
+    weeklyHydration: z.array(z.any()).default([]),
+    expiry: z.number().int().positive(),
 });
 
 export type PatientData = z.infer<typeof PatientDataSchema>;
