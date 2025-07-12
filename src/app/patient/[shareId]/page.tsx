@@ -97,8 +97,6 @@ export default function PatientDataPage() {
         );
     }
 
-    const { personal, medical, emergency } = data;
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <div className="max-w-4xl mx-auto space-y-6">
@@ -132,29 +130,20 @@ export default function PatientDataPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="text-sm text-gray-500">First Name</label><p className="font-semibold">{personal.firstName}</p></div>
-                                <div><label className="text-sm text-gray-500">Last Name</label><p className="font-semibold">{personal.lastName}</p></div>
+                                <div><label className="text-sm text-gray-500">First Name</label><p className="font-semibold">{data.firstName}</p></div>
+                                <div><label className="text-sm text-gray-500">Last Name</label><p className="font-semibold">{data.lastName}</p></div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="text-sm text-gray-500">Date of Birth</label><p className="font-semibold">{personal.dateOfBirth}</p></div>
-                                <div><label className="text-sm text-gray-500">Gender</label><p className="font-semibold capitalize">{personal.gender}</p></div>
+                                <div><label className="text-sm text-gray-500">Date of Birth</label><p className="font-semibold">{data.dateOfBirth}</p></div>
+                                <div><label className="text-sm text-gray-500">Gender</label><p className="font-semibold capitalize">{data.gender}</p></div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="text-sm text-gray-500">Phone</label><p className="font-semibold">{personal.phone}</p></div>
-                                {personal.email && (
-                                    <div><label className="text-sm text-gray-500">Email</label><p className="font-semibold">{personal.email}</p></div>
-                                )}
+                                <div><label className="text-sm text-gray-500">Age</label><p className="font-semibold">{data.age}</p></div>
+                                <div><label className="text-sm text-gray-500">Blood Type</label><Badge variant="outline" className="text-red-600">{data.bloodType}</Badge></div>
                             </div>
-                            <Separator />
-                            <div>
-                                <label className="text-sm text-gray-500 flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" /> Address
-                                </label>
-                                <p className="font-semibold">
-                                    {personal.address.street}<br />
-                                    {personal.address.city}, {personal.address.state} {personal.address.zipCode}<br />
-                                    {personal.address.country}
-                                </p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div><label className="text-sm text-gray-500">Height</label><p className="font-semibold">{data.height} cm</p></div>
+                                <div><label className="text-sm text-gray-500">Weight</label><p className="font-semibold">{data.weight} kg</p></div>
                             </div>
                         </CardContent>
                     </Card>
@@ -167,86 +156,54 @@ export default function PatientDataPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="text-sm text-gray-500">Patient ID</label><p className="font-semibold">{medical.patientId}</p></div>
-                                <div><label className="text-sm text-gray-500">Blood Type</label><Badge variant="outline" className="text-red-600">{medical.bloodType}</Badge></div>
-                            </div>
-                            <p><label className="text-sm text-gray-500">Last Visit</label><br /><span className="font-semibold">{medical.lastVisit}</span></p>
-                            {medical.allergies.length > 0 && (
+                            {data.allergies && data.allergies.length > 0 && (
                                 <div>
                                     <label className="text-sm text-gray-500">Allergies</label>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        {
-                                            //@ts-ignore
-                                            medical.allergies.map((a, i) => <Badge key={i} variant="destructive" className="text-xs">{a}</Badge>)
-                                        }
+                                        {data.allergies.map((allergy: string, i: number) => (
+                                            <Badge key={i} variant="destructive" className="text-xs">{allergy}</Badge>
+                                        ))}
                                     </div>
                                 </div>
                             )}
-                            {medical.conditions.length > 0 && (
+                            {data.medicalConditions && data.medicalConditions.length > 0 && (
                                 <div>
-                                    <label className="text-sm text-gray-500">Conditions</label>
+                                    <label className="text-sm text-gray-500">Medical Conditions</label>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        {
-                                            //@ts-ignore
-                                            medical.conditions.map((c, i) => <Badge key={i} variant="secondary" className="text-xs">{c}</Badge>)
-                                        }
+                                        {data.medicalConditions.map((condition: string, i: number) => (
+                                            <Badge key={i} variant="secondary" className="text-xs">{condition}</Badge>
+                                        ))}
                                     </div>
                                 </div>
                             )}
-                            {medical.notes && (
+                            {data.doctor && data.doctor.name && (
                                 <div>
-                                    <label className="text-sm text-gray-500">Notes</label>
-                                    <p className="text-sm bg-gray-50 p-2 rounded">{medical.notes}</p>
+                                    <label className="text-sm text-gray-500">Doctor</label>
+                                    <div className="bg-gray-50 p-2 rounded">
+                                        <p className="font-semibold">{data.doctor.name}</p>
+                                        {data.doctor.specialty && <p className="text-sm text-gray-600">{data.doctor.specialty}</p>}
+                                        {data.doctor.phone && <p className="text-sm text-gray-600">{data.doctor.phone}</p>}
+                                    </div>
                                 </div>
                             )}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Medications */}
-                {medical.medications.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-purple-700">
-                                <Pill className="h-5 w-5" /> Current Medications
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {
-                                //@ts-ignore
-                                medical.medications.map((med, i) => (
-                                    <div key={i} className="bg-purple-50 p-3 rounded-lg">
-                                        <h4 className="font-semibold text-purple-800">{med.name}</h4>
-                                        <p className="text-sm text-gray-600">Dosage: {med.dosage}</p>
-                                        <p className="text-sm text-gray-600">Frequency: {med.frequency}</p>
-                                    </div>
-                                ))
-                            }
-                        </CardContent>
-                    </Card>
-                )}
-
                 {/* Emergency Contacts */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-red-700">
-                            <Phone className="h-5 w-5" /> Emergency Contacts
+                            <Phone className="h-5 w-5" /> Emergency Contact
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid md:grid-cols-2 gap-4">
-                        <div className="bg-red-50 p-4 rounded-lg">
-                            <h4 className="font-semibold text-red-800 mb-2">Primary Contact</h4>
-                            <p className="font-semibold">{emergency.primaryContact.name}</p>
-                            <p className="text-sm text-gray-600">{emergency.primaryContact.relationship}</p>
-                            <p className="text-sm font-medium">{emergency.primaryContact.phone}</p>
-                        </div>
-                        {emergency.secondaryContact && (
-                            <div className="bg-orange-50 p-4 rounded-lg">
-                                <h4 className="font-semibold text-orange-800 mb-2">Secondary Contact</h4>
-                                <p className="font-semibold">{emergency.secondaryContact.name}</p>
-                                <p className="text-sm text-gray-600">{emergency.secondaryContact.relationship}</p>
-                                <p className="text-sm font-medium">{emergency.secondaryContact.phone}</p>
+                    <CardContent>
+                        {data.emergencyContact && (
+                            <div className="bg-red-50 p-4 rounded-lg">
+                                <h4 className="font-semibold text-red-800 mb-2">Primary Contact</h4>
+                                <p className="font-semibold">{data.emergencyContact.name}</p>
+                                <p className="text-sm text-gray-600">{data.emergencyContact.relationship}</p>
+                                <p className="text-sm font-medium">{data.emergencyContact.phone}</p>
                             </div>
                         )}
                     </CardContent>
