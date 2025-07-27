@@ -18,32 +18,92 @@ export default function Home() {
         setIsLoading(true);
         try {
             const testPayload = {
-                firstName: 'John',
-                lastName: 'Doe',
-                age: 39,
-                dateOfBirth: '1985-03-15',
-                gender: 'male',
-                height: 175,
-                weight: 70,
-                bloodType: 'O+',
-                allergies: ['Penicillin', 'Nuts'],
-                medicalConditions: ['Hypertension', 'Type 2 Diabetes'],
+                firstName: 'Amit',
+                lastName: 'Achari',
+                age: 21,
+                dateOfBirth: '07/24/2025',
+                gender: 'Male',
+                height: 173,
+                weight: 71,
+                bloodType: 'Not specified',
+                allergies: ['Soy', 'Latex', 'Dust mites', 'Trst4'],
+                medicalConditions: ['Diabetes Type 1', 'Arthritis', 'Test'],
                 emergencyContact: {
-                    name: 'Jane Doe',
-                    relationship: 'Spouse',
-                    phone: '+1-555-0124'
+                    name: 'Test',
+                    relationship: 'Relation',
+                    phone: '8989898989'
                 },
                 doctor: {
-                    name: 'Dr. Smith',
-                    phone: '+1-555-0100',
-                    specialty: 'Internal Medicine'
+                    name: 'Test doc',
+                    phone: '9898989898',
+                    specialty: 'Multi'
                 },
-                weeklySteps: [8000, 9500, 7200, 10000, 8800, 9200, 8500],
-                weeklyHydration: [2.5, 3.0, 2.8, 3.2, 2.9, 3.1, 2.7],
+                weeklySteps: [
+                    { date: '2025-07-20', dayName: 'Mon', steps: 1075, isToday: false },
+                    { date: '2025-07-21', dayName: 'Tue', steps: 1270, isToday: false },
+                    { date: '2025-07-22', dayName: 'Wed', steps: 1625, isToday: false },
+                    { date: '2025-07-23', dayName: 'Thu', steps: 1592, isToday: false },
+                    { date: '2025-07-24', dayName: 'Fri', steps: 649, isToday: false },
+                    { date: '2025-07-25', dayName: 'Sat', steps: 942, isToday: false },
+                    { date: '2025-07-26', dayName: 'Sun', steps: 390, isToday: true }
+                ],
+                weeklyHydration: [
+                    { date: '2025-07-20', dayName: 'Mon', intake: 0, isToday: false },
+                    { date: '2025-07-21', dayName: 'Tue', intake: 0, isToday: false },
+                    { date: '2025-07-22', dayName: 'Wed', intake: 0, isToday: false },
+                    { date: '2025-07-23', dayName: 'Thu', intake: 0, isToday: false },
+                    { date: '2025-07-24', dayName: 'Fri', intake: 0, isToday: false },
+                    { date: '2025-07-25', dayName: 'Sat', intake: 0, isToday: false },
+                    { date: '2025-07-26', dayName: 'Sun', intake: 0.25, isToday: true }
+                ],
+                weeklyHealthData: {
+                    steps: [
+                        { date: '2025-07-20', value: 1075, unit: 'steps' },
+                        { date: '2025-07-21', value: 1270, unit: 'steps' },
+                        { date: '2025-07-22', value: 1625, unit: 'steps' },
+                        { date: '2025-07-23', value: 1592, unit: 'steps' },
+                        { date: '2025-07-24', value: 649, unit: 'steps' },
+                        { date: '2025-07-25', value: 942, unit: 'steps' },
+                        { date: '2025-07-26', value: 390, unit: 'steps' }
+                    ],
+                    heartRate: [
+                        { date: '2025-07-20', value: 0, unit: 'bpm' },
+                        { date: '2025-07-21', value: 0, unit: 'bpm' },
+                        { date: '2025-07-22', value: 0, unit: 'bpm' },
+                        { date: '2025-07-23', value: 0, unit: 'bpm' },
+                        { date: '2025-07-24', value: 0, unit: 'bpm' },
+                        { date: '2025-07-25', value: 0, unit: 'bpm' },
+                        { date: '2025-07-26', value: null, unit: 'bpm' }
+                    ],
+                    water: [
+                        { date: '2025-07-20', value: 0, unit: 'L' },
+                        { date: '2025-07-21', value: 0, unit: 'L' },
+                        { date: '2025-07-22', value: 0, unit: 'L' },
+                        { date: '2025-07-23', value: 0, unit: 'L' },
+                        { date: '2025-07-24', value: 0, unit: 'L' },
+                        { date: '2025-07-25', value: 0, unit: 'L' },
+                        { date: '2025-07-26', value: 0.25, unit: 'L' }
+                    ],
+                    temperature: [
+                        { date: '2025-07-20', value: 38.30000114440918, unit: '°C' },
+                        { date: '2025-07-21', value: 0, unit: '°C' },
+                        { date: '2025-07-22', value: 0, unit: '°C' },
+                        { date: '2025-07-23', value: 0, unit: '°C' },
+                        { date: '2025-07-24', value: 0, unit: '°C' },
+                        { date: '2025-07-25', value: 0, unit: '°C' },
+                        { date: '2025-07-26', value: 36.4, unit: '°C' }
+                    ]
+                },
+                healthSummary: {
+                    totalSteps: 7543,
+                    avgHeartRate: null,
+                    totalHydration: 0.25,
+                    avgTemperature: 10.7
+                },
                 expiry: 300
             };
 
-            const shareId = "testing";
+            const shareId = "test123123";
 
             const testData = {
                 shareId,
