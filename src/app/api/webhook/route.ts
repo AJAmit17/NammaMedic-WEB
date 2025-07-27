@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
             data: {
                 shareId,
                 data: data,
-                expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+                expiresAt: new Date(Date.now() + 5 * 60 * 1000),
             }
         });
 

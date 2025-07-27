@@ -1,12 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { generateWebhookSignature } from '@/lib/security';
+import { generateSignatureAction } from '@/actions/generate-signature';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,69 +18,45 @@ export default function Home() {
         setIsLoading(true);
         try {
             const testPayload = {
-                personal: {
-                    firstName: 'John',
-                    lastName: 'Doe',
-                    dateOfBirth: '1985-03-15',
-                    gender: 'male' as const,
-                    phone: '+1-555-0123',
-                    email: 'john.doe@example.com',
-                    address: {
-                        street: '123 Main St',
-                        city: 'Anytown',
-                        state: 'NY',
-                        zipCode: '12345',
-                        country: 'USA'
-                    }
+                firstName: 'John',
+                lastName: 'Doe',
+                age: 39,
+                dateOfBirth: '1985-03-15',
+                gender: 'male',
+                height: 175,
+                weight: 70,
+                bloodType: 'O+',
+                allergies: ['Penicillin', 'Nuts'],
+                medicalConditions: ['Hypertension', 'Type 2 Diabetes'],
+                emergencyContact: {
+                    name: 'Jane Doe',
+                    relationship: 'Spouse',
+                    phone: '+1-555-0124'
                 },
-                medical: {
-                    patientId: 'PAT-001234',
-                    bloodType: 'O+' as const,
-                    allergies: ['Penicillin', 'Nuts'],
-                    medications: [
-                        { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' },
-                        { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' }
-                    ],
-                    conditions: ['Hypertension', 'Type 2 Diabetes'],
-                    lastVisit: '2024-01-15',
-                    notes: 'Patient reports feeling well. Blood pressure stable.'
+                doctor: {
+                    name: 'Dr. Smith',
+                    phone: '+1-555-0100',
+                    specialty: 'Internal Medicine'
                 },
-                emergency: {
-                    primaryContact: {
-                        name: 'Jane Doe',
-                        relationship: 'Spouse',
-                        phone: '+1-555-0124'
-                    },
-                    secondaryContact: {
-                        name: 'Bob Smith',
-                        relationship: 'Brother',
-                        phone: '+1-555-0125'
-                    }
-                }
+                weeklySteps: [8000, 9500, 7200, 10000, 8800, 9200, 8500],
+                weeklyHydration: [2.5, 3.0, 2.8, 3.2, 2.9, 3.1, 2.7],
+                expiry: 300
             };
 
-            // Generate shareId and create payload
-            const shareId = "testing123123";
+            const shareId = "testing";
 
             const testData = {
                 shareId,
                 source: 'demo-system',
-                signature: 'placeholder', // Temporary placeholder
+                signature: '',
                 data: testPayload
             };
 
-            // Create the final payload without signature first
             const { signature, ...payloadWithoutSignature } = testData;
             const payloadForSigning = JSON.stringify(payloadWithoutSignature);
 
-            // Generate signature for payload without signature field
-            const generatedSignature = await fetch('/api/generate-signature', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ payload: payloadForSigning })
-            }).then(res => res.json()).then(data => data.signature);
+            const generatedSignature = await generateSignatureAction(payloadForSigning);
 
-            // Add signature to the payload
             testData.signature = generatedSignature;
 
             const response = await fetch('/api/webhook', {
