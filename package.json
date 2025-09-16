@@ -26,7 +26,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.9",
     "lucide-react": "^0.525.0",
-    "next": "14.2.6",
+    "next": "^14.2.6",
     "prisma": "^6.11.1",
     "rate-limiter-flexible": "^7.1.1",
     "react": "^18",
@@ -39,6 +39,7 @@
     "zod": "^4.0.5"
   },
   "devDependencies": {
+    "@types/next": "^8.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
