@@ -120,6 +120,99 @@ async function logWebhookAttempt(source: string, payload: any, success: boolean,
     }
 }
 
+export async function DELETE(request: NextRequest) {
+    try {
+        // Rate limiting
+        const clientIP = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+        const isAllowed = await checkRateLimit(clientIP);
+
+        if (!isAllowed) {
+            return NextResponse.json(
+                { success: false, error: 'Rate limit exceeded', code: 'RATE_LIMIT' } as ApiResponse,
+                { status: 429 }
+            );
+        }
+
+        // Parse request body
+        const rawBody = await request.text();
+        let payload;
+
+        try {
+            payload = JSON.parse(rawBody);
+        } catch (error) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid JSON format', code: 'INVALID_JSON' } as ApiResponse,
+                { status: 400 }
+            );
+        }
+
+        const { shareId, source, signature } = payload;
+
+        if (!shareId || !source || !signature) {
+            return NextResponse.json(
+                { success: false, error: 'Missing required fields (shareId, source, signature)', code: 'MISSING_FIELDS' } as ApiResponse,
+                { status: 400 }
+            );
+        }
+
+        // Verify webhook signature for delete request
+        const { signature: _, ...payloadWithoutSignature } = payload;
+        const payloadForVerification = JSON.stringify(payloadWithoutSignature);
+        const isValidSignature = verifyWebhookSignature(payloadForVerification, signature);
+
+        if (!isValidSignature) {
+            console.log('Delete signature verification failed:', {
+                receivedSignature: signature,
+                payloadLength: payloadForVerification.length,
+                source
+            });
+            return NextResponse.json(
+                { success: false, error: 'Invalid signature', code: 'INVALID_SIGNATURE' } as ApiResponse,
+                { status: 401 }
+            );
+        }
+
+        // Check if the data exists
+        const existingData = await prisma.patientData.findUnique({
+            where: { shareId }
+        });
+
+        if (!existingData) {
+            return NextResponse.json(
+                { success: false, error: 'Data not found', code: 'DATA_NOT_FOUND' } as ApiResponse,
+                { status: 404 }
+            );
+        }
+
+        // Delete the patient data
+        await prisma.patientData.delete({
+            where: { shareId }
+        });
+
+        // Log the delete action
+        await logWebhookAttempt(source, payload, true, 'Data successfully deleted');
+
+        return NextResponse.json(
+            {
+                success: true,
+                message: 'Patient data successfully revoked and deleted',
+                data: {
+                    shareId,
+                    deletedAt: new Date().toISOString()
+                }
+            } as ApiResponse,
+            { status: 200 }
+        );
+
+    } catch (error) {
+        console.error('Webhook delete processing error:', error);
+        return NextResponse.json(
+            { success: false, error: 'Internal server error', code: 'INTERNAL_ERROR' } as ApiResponse,
+            { status: 500 }
+        );
+    }
+}
+
 export async function GET() {
     return NextResponse.json(
         { success: false, error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' } as ApiResponse,
